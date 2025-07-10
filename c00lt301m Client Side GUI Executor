@@ -1,0 +1,182 @@
+-- CodeRunner GUI (Draggable + Rounded Corners)
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Create GUI container
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CodeRunnerGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- Success Sound
+local successSound = Instance.new("Sound")
+successSound.SoundId = "rbxassetid://3997124966" -- Success chime
+successSound.Volume = 0.5
+successSound.Looped = false
+successSound.Name = "SuccessSound"
+successSound.Parent = screenGui
+
+-- Error Sound
+local errorSound = Instance.new("Sound")
+errorSound.SoundId = "rbxassetid://138090596" -- Error beep
+errorSound.Volume = 0.5
+errorSound.Looped = false
+errorSound.Name = "ErrorSound"
+errorSound.Parent = screenGui
+
+-- Helper to add rounded corners
+local function addCorner(instance, radius)
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, radius)
+	corner.Parent = instance
+end
+
+-- Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 400, 0, 250)
+mainFrame.Position = UDim2.new(0.5, -200, 0.5, -125)
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0) -- Black
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+addCorner(mainFrame, 10)
+
+-- Title Label
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundColor3 = Color3.fromRGB(255, 221, 0) -- Yellow
+title.Text = "C00lt301m Reborn Client-side Executor"
+title.TextColor3 = Color3.fromRGB(0, 0, 0)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 20
+title.Parent = mainFrame
+addCorner(title, 8)
+
+-- Scrollable Container
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, -20, 0, 140)
+scrollFrame.Position = UDim2.new(0, 10, 0, 40)
+scrollFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 100) -- Dark Blue
+scrollFrame.BorderSizePixel = 0
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+scrollFrame.ScrollBarThickness = 6
+scrollFrame.ClipsDescendants = true
+scrollFrame.Parent = mainFrame
+addCorner(scrollFrame, 6)
+
+-- Code Input Box (inside the scroll frame)
+local inputBox = Instance.new("TextBox")
+inputBox.Size = UDim2.new(1, -10, 0, 140)
+inputBox.Position = UDim2.new(0, 5, 0, 0)
+inputBox.BackgroundTransparency = 1
+inputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+inputBox.Text = "Scripts Here"
+inputBox.Font = Enum.Font.Code
+inputBox.TextSize = 16
+inputBox.TextWrapped = true
+inputBox.TextScaled = false
+inputBox.ClipsDescendants = true
+inputBox.TextXAlignment = Enum.TextXAlignment.Left
+inputBox.TextYAlignment = Enum.TextYAlignment.Top
+inputBox.ClearTextOnFocus = false
+inputBox.MultiLine = true
+inputBox.AutomaticSize = Enum.AutomaticSize.Y
+inputBox.Parent = scrollFrame
+
+-- Limit font size for text clarity
+local textSizeConstraint = Instance.new("UITextSizeConstraint")
+textSizeConstraint.MaxTextSize = 16
+textSizeConstraint.MinTextSize = 10
+textSizeConstraint.Parent = inputBox
+
+-- Run Button
+local runButton = Instance.new("TextButton")
+runButton.Size = UDim2.new(0, 180, 0, 30)
+runButton.Position = UDim2.new(0, 10, 1, -40)
+runButton.BackgroundColor3 = Color3.fromRGB(0, 85, 255) -- Blue
+runButton.Text = "Run Code"
+runButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+runButton.Font = Enum.Font.SourceSansBold
+runButton.TextSize = 18
+runButton.Parent = mainFrame
+addCorner(runButton, 6)
+
+-- Output Label
+local output = Instance.new("TextLabel")
+output.Size = UDim2.new(1, -20, 0, 30)
+output.Position = UDim2.new(0, 10, 1, -75)
+output.BackgroundColor3 = Color3.fromRGB(255, 221, 0) -- Yellow
+output.Text = "Status: Ready"
+output.TextColor3 = Color3.fromRGB(0, 0, 0)
+output.Font = Enum.Font.SourceSans
+output.TextSize = 14
+output.TextXAlignment = Enum.TextXAlignment.Left
+output.Parent = mainFrame
+addCorner(output, 6)
+
+-- Run code on button click
+runButton.MouseButton1Click:Connect(function()
+	local code = inputBox.Text
+	if code and code ~= "" then
+		local func, err = loadstring(code)
+		if func then
+			local success, result = pcall(func)
+			if success then
+				output.Text = "Status: Script ran successfully"
+				successSound:Play()
+			else
+				output.Text = "Error: " .. tostring(result)
+				errorSound:Play()
+			end
+		else
+			output.Text = "Compile error: " .. tostring(err)
+			errorSound:Play()
+		end
+	else
+		output.Text = "Error: put script bro?"
+		errorSound:Play()
+	end
+end)
+
+-- Clear Button
+local clearButton = Instance.new("TextButton")
+clearButton.Size = UDim2.new(0, 90, 0, 30)
+clearButton.Position = UDim2.new(0, 200, 1, -40)
+clearButton.BackgroundColor3 = Color3.fromRGB(255, 85, 0) -- Orange-red clear color
+clearButton.Text = "Clear🫥"
+clearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+clearButton.Font = Enum.Font.SourceSansBold
+clearButton.TextSize = 16
+clearButton.Parent = mainFrame
+addCorner(clearButton, 6)
+
+-- Copy Button
+local copyButton = Instance.new("TextButton")
+copyButton.Size = UDim2.new(0, 90, 0, 30)
+copyButton.Position = UDim2.new(1, -100, 1, -40)
+copyButton.BackgroundColor3 = Color3.fromRGB(0, 170, 0) -- Green for copy
+copyButton.Text = "Copy📋"
+copyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+copyButton.Font = Enum.Font.SourceSansBold
+copyButton.TextSize = 16
+copyButton.Parent = mainFrame
+addCorner(copyButton, 6)
+
+-- Clear functionality
+clearButton.MouseButton1Click:Connect(function()
+	inputBox.Text = ""
+	output.Text = "Status: Cleared"
+end)
+
+-- Copy to clipboard (only works in Studio with `setclipboard`)
+copyButton.MouseButton1Click:Connect(function()
+	if setclipboard then
+		setclipboard(inputBox.Text)
+		output.Text = "Copied to clipboard"
+	else
+		output.Text = "Clipboard not supported"
+	end
+end)
