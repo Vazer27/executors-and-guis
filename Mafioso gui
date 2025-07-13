@@ -1,1 +1,214 @@
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Vazer27/executors-and-guis/refs/heads/main/Mafioso%20gui"))()
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- Create the ScreenGui first
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CodeRunnerGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- Sounds
+local startupSound = Instance.new("Sound")
+startupSound.SoundId = "rbxassetid://2084290015" -- Windows XP startup
+startupSound.Volume = 1
+startupSound.Parent = screenGui
+
+local errorSound = Instance.new("Sound")
+errorSound.SoundId = "rbxassetid://2323663829" -- Windows XP error
+errorSound.Volume = 1
+errorSound.Parent = screenGui
+
+-- Play startup sound when GUI loads
+startupSound:Play()
+
+-- Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 400, 0, 300)
+mainFrame.Position = UDim2.new(0.5, -200, 0.5, -150)
+mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 12)
+frameCorner.Parent = mainFrame
+
+-- Title
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 30)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Mafioso's Executor GUI"
+titleLabel.TextColor3 = Color3.fromRGB(50, 150, 255)
+titleLabel.Font = Enum.Font.SourceSansBold
+titleLabel.TextSize = 22
+titleLabel.ZIndex = 1
+titleLabel.Parent = mainFrame
+
+-- Code Input
+local codeBox = Instance.new("TextBox")
+codeBox.Size = UDim2.new(1, -20, 0, 160)
+codeBox.Position = UDim2.new(0, 10, 0, 40)
+codeBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+codeBox.TextColor3 = Color3.fromRGB(200, 200, 255)
+codeBox.Font = Enum.Font.Code
+codeBox.TextSize = 16
+codeBox.ClearTextOnFocus = false
+codeBox.MultiLine = true
+codeBox.TextWrapped = true
+codeBox.Text = "loadstrings or lua code"
+codeBox.TextXAlignment = Enum.TextXAlignment.Left
+codeBox.TextYAlignment = Enum.TextYAlignment.Top
+codeBox.ZIndex = 1
+codeBox.Parent = mainFrame
+
+local codeCorner = Instance.new("UICorner")
+codeCorner.CornerRadius = UDim.new(0, 8)
+codeCorner.Parent = codeBox
+
+-- Execute Button
+local execButton = Instance.new("TextButton")
+execButton.Size = UDim2.new(0, 120, 0, 30)
+execButton.Position = UDim2.new(1, -130, 1, -40)
+execButton.BackgroundColor3 = Color3.fromRGB(0, 85, 170)
+execButton.Text = "Execute⚔️"
+execButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+execButton.Font = Enum.Font.SourceSansBold
+execButton.TextSize = 18
+execButton.ZIndex = 1
+execButton.Parent = mainFrame
+
+local execCorner = Instance.new("UICorner")
+execCorner.CornerRadius = UDim.new(0, 8)
+execCorner.Parent = execButton
+
+-- Copy Code Button
+local copyButton = Instance.new("TextButton")
+copyButton.Size = UDim2.new(0, 120, 0, 30)
+copyButton.Position = UDim2.new(1, -260, 1, -40)
+copyButton.BackgroundColor3 = Color3.fromRGB(0, 120, 120)
+copyButton.Text = "Copy Code 📋"
+copyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+copyButton.Font = Enum.Font.SourceSansBold
+copyButton.TextSize = 18
+copyButton.ZIndex = 1
+copyButton.Parent = mainFrame
+
+local copyCorner = Instance.new("UICorner")
+copyCorner.CornerRadius = UDim.new(0, 8)
+copyCorner.Parent = copyButton
+
+-- Clear Clipboard Button
+local clearClipboardButton = Instance.new("TextButton")
+clearClipboardButton.Size = UDim2.new(0, 120, 0, 30)
+clearClipboardButton.Position = UDim2.new(1, -130, 1, -80)
+clearClipboardButton.BackgroundColor3 = Color3.fromRGB(120, 0, 0)
+clearClipboardButton.Text = "Clear Clipboard"
+clearClipboardButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+clearClipboardButton.Font = Enum.Font.SourceSansBold
+clearClipboardButton.TextSize = 16
+clearClipboardButton.ZIndex = 1
+clearClipboardButton.Parent = mainFrame
+
+local clearCorner = Instance.new("UICorner")
+clearCorner.CornerRadius = UDim.new(0, 8)
+clearCorner.Parent = clearClipboardButton
+
+-- Output Label
+local outputLabel = Instance.new("TextLabel")
+outputLabel.Size = UDim2.new(1, -20, 0, 30)
+outputLabel.Position = UDim2.new(0, 10, 1, -120)
+outputLabel.AnchorPoint = Vector2.new(0, 1)
+outputLabel.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+outputLabel.TextColor3 = Color3.fromRGB(150, 255, 150)
+outputLabel.Font = Enum.Font.SourceSans
+outputLabel.TextSize = 16
+outputLabel.Text = "Output: No Script Executed Yet"
+outputLabel.TextXAlignment = Enum.TextXAlignment.Left
+outputLabel.ZIndex = 1
+outputLabel.Parent = mainFrame
+
+local outputCorner = Instance.new("UICorner")
+outputCorner.CornerRadius = UDim.new(0, 8)
+outputCorner.Parent = outputLabel
+
+-- Execution Logic
+execButton.MouseButton1Click:Connect(function()
+	local code = codeBox.Text
+
+	local func, syntaxError = loadstring(code)
+	if not func then
+		outputLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+		outputLabel.Text = "Output: Syntax Error - " .. tostring(syntaxError)
+		errorSound:Play()
+		return
+	end
+
+	local success, runtimeError = pcall(func)
+	if success then
+		outputLabel.TextColor3 = Color3.fromRGB(150, 255, 150)
+		outputLabel.Text = "Output: script ran successfully!"
+	else
+		outputLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+		outputLabel.Text = "Output: Runtime Error - " .. tostring(runtimeError)
+		errorSound:Play()
+	end
+end)
+
+-- Copy Code Logic
+copyButton.MouseButton1Click:Connect(function()
+	setclipboard(codeBox.Text)
+	outputLabel.TextColor3 = Color3.fromRGB(150, 255, 150)
+	outputLabel.Text = "Output: Code copied to clipboard!"
+end)
+
+-- Clear Clipboard Logic
+clearClipboardButton.MouseButton1Click:Connect(function()
+	setclipboard("")
+	outputLabel.TextColor3 = Color3.fromRGB(150, 255, 150)
+	outputLabel.Text = "Output: Clipboard cleared!"
+end)
+
+-- Avatar Info Frame
+local avatarFrame = Instance.new("Frame")
+avatarFrame.Size = UDim2.new(0, 150, 0, 60)
+avatarFrame.Position = UDim2.new(0.5, 220, 0.5, -150)
+avatarFrame.AnchorPoint = Vector2.new(0, 0)
+avatarFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+avatarFrame.BorderSizePixel = 0
+avatarFrame.Active = true
+avatarFrame.Draggable = true
+avatarFrame.Parent = screenGui
+
+local avatarCorner = Instance.new("UICorner")
+avatarCorner.CornerRadius = UDim.new(0, 10)
+avatarCorner.Parent = avatarFrame
+
+-- Avatar Image
+local avatarImage = Instance.new("ImageLabel")
+avatarImage.Size = UDim2.new(0, 50, 0, 50)
+avatarImage.Position = UDim2.new(0, 5, 0, 5)
+avatarImage.BackgroundTransparency = 1
+avatarImage.Parent = avatarFrame
+
+local userId = player.UserId
+local thumbType = Enum.ThumbnailType.HeadShot
+local thumbSize = Enum.ThumbnailSize.Size48x48
+local content, isReady = Players:GetUserThumbnailAsync(userId, thumbType, thumbSize)
+avatarImage.Image = content
+
+-- Username
+local usernameLabel = Instance.new("TextLabel")
+usernameLabel.Size = UDim2.new(1, -60, 0, 50)
+usernameLabel.Position = UDim2.new(0, 60, 0, 5)
+usernameLabel.BackgroundTransparency = 1
+usernameLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+usernameLabel.Font = Enum.Font.SourceSansBold
+usernameLabel.TextSize = 22
+usernameLabel.Text = player.Name
+usernameLabel.TextXAlignment = Enum.TextXAlignment.Left
+usernameLabel.Parent = avatarFrame
