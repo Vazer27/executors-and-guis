@@ -1,0 +1,143 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- GUI Setup
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FunnyDiscoGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- Popup GUI (initially hidden)
+local popup = Instance.new("Frame")
+popup.Size = UDim2.new(0, 300, 0, 150)
+popup.Position = UDim2.new(0.5, -150, 0.5, -75)
+popup.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+popup.Visible = false
+popup.Parent = screenGui
+
+local popupText = Instance.new("TextLabel")
+popupText.Size = UDim2.new(1, 0, 0.6, 0)
+popupText.Text = "this is not harmful to ur device do you want to ccontinue This?"
+popupText.TextColor3 = Color3.new(1, 1, 1)
+popupText.BackgroundTransparency = 1
+popupText.Font = Enum.Font.GothamBlack
+popupText.TextScaled = true
+popupText.Parent = popup
+
+local yesButton = Instance.new("TextButton")
+yesButton.Size = UDim2.new(0.45, 0, 0.3, 0)
+yesButton.Position = UDim2.new(0.05, 0, 0.65, 0)
+yesButton.Text = "Yes"
+yesButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+yesButton.TextColor3 = Color3.new(1, 1, 1)
+yesButton.Font = Enum.Font.GothamBold
+yesButton.TextScaled = true
+yesButton.Parent = popup
+
+local noButton = Instance.new("TextButton")
+noButton.Size = UDim2.new(0.45, 0, 0.3, 0)
+noButton.Position = UDim2.new(0.5, 0, 0.65, 0)
+noButton.Text = "No"
+noButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+noButton.TextColor3 = Color3.new(1, 1, 1)
+noButton.Font = Enum.Font.GothamBold
+noButton.TextScaled = true
+noButton.Parent = popup
+
+-- Funny messages and their positions
+local funnyMessages = {
+	{ Text = "🔥 Flash Sale! Buy 1 get 99 free! 🔥", Position = UDim2.new(0, 20, 0, 20) },       -- Top-left
+	{ Text = "😂 Why did the chicken cross the road? To avoid Roblox lag!", Position = UDim2.new(0, 20, 1, -120) }, -- Bottom-left
+	{ Text = "🎉 FREE ROBUX?? Just kidding, gotcha! 😂", Position = UDim2.new(1, -370, 0, 20) },  -- Top-right
+	{ Text = "💥 Warning: Excessive dancing may cause disco fever! 🕺", Position = UDim2.new(0.5, -175, 0.4, 0) }, -- Center-ish
+}
+
+-- Function to show funny GUI messages one by one in different spots (3 seconds each)
+local function showFunnyMessages()
+	for _, msgData in ipairs(funnyMessages) do
+		local msgFrame = Instance.new("Frame")
+		msgFrame.Size = UDim2.new(0, 350, 0, 100)
+		msgFrame.Position = msgData.Position
+		msgFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+		msgFrame.BorderSizePixel = 0
+		msgFrame.Parent = screenGui
+
+		local msgText = Instance.new("TextLabel")
+		msgText.Size = UDim2.new(1, -20, 1, -20)
+		msgText.Position = UDim2.new(0, 10, 0, 10)
+		msgText.BackgroundTransparency = 1
+		msgText.Text = msgData.Text
+		msgText.TextColor3 = Color3.new(1, 1, 1)
+		msgText.Font = Enum.Font.GothamBold
+		msgText.TextScaled = true
+		msgText.Parent = msgFrame
+
+		wait(3) -- Show message for 3 seconds
+
+		msgFrame:Destroy()
+	end
+	-- After all messages, show the popup
+	popup.Visible = true
+end
+
+-- Run the funny messages first (non-blocking)
+task.spawn(showFunnyMessages)
+
+-- No button event: close GUI and end script
+noButton.MouseButton1Click:Connect(function()
+	screenGui:Destroy()
+end)
+
+-- Yes button event: hide popup, start disco party + disco text, end after 15 seconds
+yesButton.MouseButton1Click:Connect(function()
+	popup.Visible = false
+
+	-- Disco Party 🎉 (translucent)
+	local disco = Instance.new("Frame")
+	disco.Size = UDim2.new(1, 0, 1, 0)
+	disco.BackgroundTransparency = 0.5 -- translucent
+	disco.BorderSizePixel = 0
+	disco.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	disco.ZIndex = 0
+	disco.Parent = screenGui
+
+	-- Disco text label
+	local discoText = Instance.new("TextLabel")
+	discoText.Size = UDim2.new(1, 0, 0.2, 0)
+	discoText.Position = UDim2.new(0, 0, 0.4, 0) -- middle vertically
+	discoText.BackgroundTransparency = 1
+	discoText.Text = "DISCO PARTYY!!✅💥🕺😎"
+	discoText.TextColor3 = Color3.new(1, 1, 1)
+	discoText.Font = Enum.Font.GothamBlack
+	discoText.TextScaled = true
+	discoText.ZIndex = 1
+	discoText.Parent = screenGui
+
+	local colors = {
+		Color3.fromRGB(255, 100, 100),
+		Color3.fromRGB(100, 255, 100),
+		Color3.fromRGB(100, 100, 255),
+		Color3.fromRGB(255, 255, 100),
+		Color3.fromRGB(255, 100, 255),
+		Color3.fromRGB(100, 255, 255),
+	}
+
+	local running = true
+	local i = 1
+
+	-- Change colors in a separate task
+	task.spawn(function()
+		while running do
+			disco.BackgroundColor3 = colors[i]
+			i = (i % #colors) + 1
+			task.wait(0.3)
+		end
+	end)
+
+	-- Stop disco after 15 seconds and clean up
+	task.delay(15, function()
+		running = false
+		screenGui:Destroy()
+	end)
+end)
