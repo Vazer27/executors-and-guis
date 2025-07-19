@@ -1,0 +1,122 @@
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- GUI Creation
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "PurpleCodeRunner"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 400, 0, 250)
+frame.Position = UDim2.new(0.5, -200, 0.5, -125)
+frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+frame.BorderSizePixel = 0
+frame.Name = "MainFrame"
+frame.Parent = screenGui
+
+-- Rounded Corners
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = frame
+
+-- Title Label
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundTransparency = 1
+title.Text = "💻 purple Qxil Executor"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 18
+title.TextColor3 = Color3.fromRGB(128, 0, 128)
+title.Parent = frame
+
+-- Draggable
+local drag = Instance.new("LocalScript", frame)
+drag.Source = [[
+	local UIS = game:GetService("UserInputService")
+	local frame = script.Parent
+	local dragToggle, dragInput, dragStart, startPos
+
+	local function update(input)
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+
+	frame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragToggle = true
+			dragStart = input.Position
+			startPos = frame.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then
+					dragToggle = false
+				end
+			end)
+		end
+	end)
+
+	UIS.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement then
+			dragInput = input
+		end
+	end)
+
+	UIS.InputChanged:Connect(function(input)
+		if input == dragInput and dragToggle then
+			update(input)
+		end
+	end)
+]]
+
+-- Code TextBox
+local inputBox = Instance.new("TextBox")
+inputBox.Size = UDim2.new(1, -20, 0, 150)
+inputBox.Position = UDim2.new(0, 10, 0, 40)
+inputBox.BackgroundColor3 = Color3.fromRGB(245, 245, 255)
+inputBox.TextColor3 = Color3.fromRGB(80, 0, 130)
+inputBox.ClearTextOnFocus = false
+inputBox.MultiLine = true
+inputBox.TextXAlignment = Enum.TextXAlignment.Left
+inputBox.TextYAlignment = Enum.TextYAlignment.Top
+inputBox.TextSize = 16
+inputBox.Font = Enum.Font.Code
+inputBox.Text = "-- Write your local script code here"
+inputBox.Parent = frame
+
+-- Buttons
+local runButton = Instance.new("TextButton")
+runButton.Size = UDim2.new(0, 100, 0, 30)
+runButton.Position = UDim2.new(0, 10, 1, -40)
+runButton.Text = "▶ Run"
+runButton.BackgroundColor3 = Color3.fromRGB(153, 51, 255)
+runButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+runButton.Font = Enum.Font.GothamBold
+runButton.TextSize = 14
+runButton.Parent = frame
+
+local clearButton = Instance.new("TextButton")
+clearButton.Size = UDim2.new(0, 100, 0, 30)
+clearButton.Position = UDim2.new(0, 120, 1, -40)
+clearButton.Text = "🗑 Clear"
+clearButton.BackgroundColor3 = Color3.fromRGB(200, 200, 255)
+clearButton.TextColor3 = Color3.fromRGB(80, 0, 130)
+clearButton.Font = Enum.Font.GothamBold
+clearButton.TextSize = 14
+clearButton.Parent = frame
+
+-- Run Logic
+runButton.MouseButton1Click:Connect(function()
+	local code = inputBox.Text
+	local func, err = loadstring(code)
+	if func then
+		pcall(func)
+	else
+		warn("Error running code:", err)
+	end
+end)
+
+-- Clear Logic
+clearButton.MouseButton1Click:Connect(function()
+	inputBox.Text = ""
+end)
